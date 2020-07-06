@@ -4,43 +4,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".StickerActivity">
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/usernameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:layout_marginBottom="32dp"
-        android:text="Enter Username"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/usernameEditText"
+        android:layout_marginTop="213dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/usernameEditText"
+    <TextView
+        android:id="@+id/serverTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="56dp"
-        android:ems="10"
-        android:inputType="textPersonName"
+        android:layout_marginTop="87dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
-        tools:text="Enter Username" />
+        app:layout_constraintTop_toBottomOf="@+id/usernameTextView" />
 
     <Button
-        android:id="@+id/enterButton"
+        android:id="@+id/sendMessageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Enter App"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="102dp"
+        android:text="SEND MESSAGE"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/usernameEditText" />
-
+        app:layout_constraintTop_toBottomOf="@+id/serverTextView" />
 </androidx.constraintlayout.widget.ConstraintLayout>
