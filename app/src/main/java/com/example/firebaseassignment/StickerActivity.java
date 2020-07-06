@@ -2,6 +2,7 @@ package com.example.firebaseassignment;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -27,7 +28,10 @@ public class StickerActivity extends AppCompatActivity {
 
     private String SERVER_KEY;
     private String CLIENT_REGISTRATION_TOKEN;
-    private String PIXEL_TOKEN;
+
+    // SECOND_DEVICE_TOKEN is the ID for my phone. I use the emulator as one device, my pixel 2 as another.
+    // Comment this out in onCreate() and hard code your own device ID in for testing purposes.
+    private String SECOND_DEVICE_TOKEN;
     private String username;
 
     private TextView usernameTextView;
@@ -39,33 +43,39 @@ public class StickerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sticker);
 
+        // These came over from MainActivity in the intent's extras
         SERVER_KEY = getIntent().getStringExtra("SERVER_KEY");
         CLIENT_REGISTRATION_TOKEN = getIntent().getStringExtra("CLIENT_REGISTRATION_TOKEN");
         username = getIntent().getStringExtra("username");
-        PIXEL_TOKEN = "e9RI84qydLE:APA91bFSy88Adx2kzWmsxyyEEaVc-PzkMyP_cAcbWomDSR6PVnkw1V5mfCLFKm9_aY-kAPKCv6j2ISDw7oE9pggrl-MQPs-aIuOnWuY__dDEuRj5n8K0lWLo5aas2bc8I0nrDiY0wkBX";
+
+        // My personal device. Comment out and add your own for testing purposes.
+        SECOND_DEVICE_TOKEN = "e9RI84qydLE:APA91bFSy88Adx2kzWmsxyyEEaVc-PzkMyP_cAcbWomDSR6PVnkw1V5mfCLFKm9_aY-kAPKCv6j2ISDw7oE9pggrl-MQPs-aIuOnWuY__dDEuRj5n8K0lWLo5aas2bc8I0nrDiY0wkBX";
 
         usernameTextView = findViewById(R.id.usernameTextView);
         serverTextView = findViewById(R.id.serverTextView);
         sendMessageButton = findViewById(R.id.sendMessageButton);
 
+        // This button initiates a hard coded message, defined in sendMessage(), to be sent to the SECOND_DEVICE_TOKEN
         sendMessageButton.setOnClickListener(v -> {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    sendMessage(PIXEL_TOKEN);
+                    sendMessage(SECOND_DEVICE_TOKEN);
                 }
             }).start();
-
         });
 
+        // Included for testing purposes
         usernameTextView.setText(username);
         serverTextView.setText(CLIENT_REGISTRATION_TOKEN);
     }
 
 
     /**
-     * This method is referenced (in part) from Dr. Feinberg Firebase Demo example code. The
-     * example code makes up the basic structure of sending a message to a firebase client ID
+     * This method is referenced from Dr. Feinberg Firebase Demo sample code,
+     * in FCMActivity, sendMessageToDevice()
+     * The sample code makes up the basic structure of sending a message to a firebase client ID
+     *
      * @param clientToken the token of the client we are sending to
      */
     public void sendMessage(String clientToken) {
@@ -80,8 +90,8 @@ public class StickerActivity extends AppCompatActivity {
             jNotification.put("badge", "1");
 
 
-            jdata.put("title","data title");
-            jdata.put("content","data content");
+            jdata.put("title", "data title");
+            jdata.put("content", "data content");
 
             /***
              * The Notification object is now populated.
@@ -93,7 +103,7 @@ public class StickerActivity extends AppCompatActivity {
 
             jPayload.put("priority", "high");
             jPayload.put("notification", jNotification);
-            jPayload.put("data",jdata);
+            jPayload.put("data", jdata);
 
 
             /***
@@ -116,11 +126,14 @@ public class StickerActivity extends AppCompatActivity {
             InputStream inputStream = conn.getInputStream();
             final String resp = convertStreamToString(inputStream);
 
+
+            //TODO: This is the debugging response given back to the sender. This probably doesn't need to
+            // be include in the final app
             Handler h = new Handler(Looper.getMainLooper());
             h.post(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(StickerActivity.this, resp,Toast.LENGTH_LONG).show();
+                    Toast.makeText(StickerActivity.this, resp, Toast.LENGTH_LONG).show();
                 }
             });
         } catch (JSONException | IOException e) {
@@ -130,12 +143,13 @@ public class StickerActivity extends AppCompatActivity {
     }
 
     /**
-     * This method is copied from Dr. Feinberg Firebase Demo example code, FCMActivity
+     * This method is copied from Dr. Feinberg Firebase Demo example code, from FCMActivity
      */
     private String convertStreamToString(InputStream is) {
         Scanner s = new Scanner(is).useDelimiter("\\A");
         return s.hasNext() ? s.next().replace(",", ",\n") : "";
     }
+
 
 
 }
