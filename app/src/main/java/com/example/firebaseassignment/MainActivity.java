@@ -1,5 +1,7 @@
 package com.example.firebaseassignment;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -8,10 +10,17 @@ import android.os.Handler;
 import android.os.Looper;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.firebaseassignment.models.User;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
@@ -23,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText usernameEditText;
     private Button enterButton;
+
+    private DatabaseReference database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(InstanceIdResult instanceIdResult) {
                 CLIENT_REGISTRATION_TOKEN = instanceIdResult.getToken();
+                database = FirebaseDatabase.getInstance().getReference();
 
                 //TODO: I'm not sure where this logic belongs. But here might be an option.
                 // - After getting the token, we might want to go to the database and get the
@@ -45,9 +57,47 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        /*
+        These are triggers for when our data changes in the database. If the database notices
+        that info has changed in the 'users' table, it'll call one of these based on the condition.
+        We may not need it, but we may. I'm putting the skeleton here in-case you want to use it.
+        It doesn't do anything as it is so you can comment it out if you want.
+         */
+        database.child("users").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
         // Set listener for enterButton
         enterButton.setOnClickListener(v -> {
-            Intent stickerActivity = new Intent(getApplicationContext(), StickerActivity.class);
+            Intent stickerActivity = new Intent(getApplicationContext(), StickerActivityWithImages.class);
+
+            MainActivity.this.storeUserInfo(
+                    usernameEditText.getText().toString(),
+                    CLIENT_REGISTRATION_TOKEN
+                    );
 
             stickerActivity.putExtra("username", usernameEditText.getText().toString());
             stickerActivity.putExtra("CLIENT_REGISTRATION_TOKEN", CLIENT_REGISTRATION_TOKEN);
@@ -67,6 +117,36 @@ public class MainActivity extends AppCompatActivity {
             extractDataFromNotification(extras);
         }
 
+    }
+
+    /**
+     * This should add a user to te database. I haven't tested it. I'm so tired.
+     * @param username the username of the user
+     * @param clientRegToken the registration token of the user
+     */
+    private void storeUserInfo(String username, String clientRegToken) {
+        database.child("users")
+                .child(username)
+                .runTransaction(new Transaction.Handler() {
+                    @NonNull
+                    @Override
+                    public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                        User u = mutableData.getValue(User.class);
+                        if (u == null) {
+                            return Transaction.success(mutableData);
+                        }
+
+                        u.username = username;
+                        u.CLIENT_REGISTRATION_TOKEN = clientRegToken;
+                        mutableData.setValue(u);
+                        return Transaction.success(mutableData);
+                    }
+
+                    @Override
+                    public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
+
+                    }
+                });
     }
 
     /**

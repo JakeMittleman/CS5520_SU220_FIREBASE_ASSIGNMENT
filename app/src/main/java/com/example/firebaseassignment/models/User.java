@@ -1,4 +1,4 @@
-package com.example.firebaseassignment;
+package com.example.firebaseassignment.models;
 
 import java.util.ArrayList;
 
