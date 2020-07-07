@@ -19,8 +19,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Transaction;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
@@ -63,38 +61,38 @@ public class MainActivity extends AppCompatActivity {
         We may not need it, but we may. I'm putting the skeleton here in-case you want to use it.
         It doesn't do anything as it is so you can comment it out if you want.
          */
-        database.child("users").addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+//        database.child("users").addChildEventListener(new ChildEventListener() {
+//            @Override
+//            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+//
+//            }
+//
+//            @Override
+//            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+//
+//            }
+//
+//            @Override
+//            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+//
+//            }
+//
+//            @Override
+//            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//            }
+//        });
 
         // Set listener for enterButton
         enterButton.setOnClickListener(v -> {
             Intent stickerActivity = new Intent(getApplicationContext(), StickerActivityWithImages.class);
 
-            MainActivity.this.storeUserInfo(
+            MainActivity.this.createUser(
                     usernameEditText.getText().toString(),
                     CLIENT_REGISTRATION_TOKEN
                     );
@@ -120,33 +118,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * This should add a user to te database. I haven't tested it. I'm so tired.
+     * This should add a user to the database. I haven't tested it. I'm so tired.
      * @param username the username of the user
      * @param clientRegToken the registration token of the user
      */
-    private void storeUserInfo(String username, String clientRegToken) {
-        database.child("users")
-                .child(username)
-                .runTransaction(new Transaction.Handler() {
-                    @NonNull
-                    @Override
-                    public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
-                        User u = mutableData.getValue(User.class);
-                        if (u == null) {
-                            return Transaction.success(mutableData);
-                        }
-
-                        u.username = username;
-                        u.CLIENT_REGISTRATION_TOKEN = clientRegToken;
-                        mutableData.setValue(u);
-                        return Transaction.success(mutableData);
-                    }
-
-                    @Override
-                    public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
-
-                    }
-                });
+    private void createUser(String username, String clientRegToken) {
+        User user = new User(username, clientRegToken);
+        database.child("users").child(username).setValue(user);
     }
 
     /**

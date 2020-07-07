@@ -1,5 +1,7 @@
 package com.example.firebaseassignment;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -10,7 +12,17 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.firebaseassignment.models.User;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,6 +61,7 @@ public class StickerActivityWithImages extends AppCompatActivity {
         SERVER_KEY = getIntent().getStringExtra("SERVER_KEY");
         CLIENT_REGISTRATION_TOKEN = getIntent().getStringExtra("CLIENT_REGISTRATION_TOKEN");
         username = getIntent().getStringExtra("username");
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
 
         // Jon's Device Token
         //SECOND_DEVICE_TOKEN = "e9RI84qydLE:APA91bFSy88Adx2kzWmsxyyEEaVc-PzkMyP_cAcbWomDSR6PVnkw1V5mfCLFKm9_aY-kAPKCv6j2ISDw7oE9pggrl-MQPs-aIuOnWuY__dDEuRj5n8K0lWLo5aas2bc8I0nrDiY0wkBX";
@@ -58,9 +71,50 @@ public class StickerActivityWithImages extends AppCompatActivity {
 
         sendImageButton = findViewById(R.id.sendImageButton);
 
+        database.child("users").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                User user = dataSnapshot.getValue(User.class);
+                if (dataSnapshot.getKey().equalsIgnoreCase(username)) {
+                    TextView userInfo = (TextView) findViewById(R.id.userInfoText);
+                    userInfo.setText(
+                            String.format(
+                                    "username: %s\n" +
+                                            "client reg token: %s\n" +
+                                            "sentCount: %s\n",
+                                    user.username,
+                                    user.CLIENT_REGISTRATION_TOKEN,
+                                    user.sentCount
+                            )
+                    );
+                }
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
         // This button initiates a hard coded message, defined in sendMessage(), to be sent to the SECOND_DEVICE_TOKEN
         sendImageButton.setOnClickListener(v -> {
             if (selectedSticker != -1) {
+                increaseSentCount(database);
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -71,6 +125,30 @@ public class StickerActivityWithImages extends AppCompatActivity {
                 new AlertDialog.Builder(this)
                         .setMessage("In order to send a sticker you must select one!")
                         .show();
+            }
+        });
+    }
+
+    private void increaseSentCount(DatabaseReference database) {
+        database.child("users").child(username).runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                User user = mutableData.getValue(User.class);
+                if (user == null) {
+                    return Transaction.success(mutableData);
+                }
+
+                user.sentCount = user.sentCount + 1;
+
+                mutableData.setValue(user);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
+                // Transaction completed
+                Log.d("onComplete", "postTransaction:onComplete:" + databaseError);
             }
         });
     }
@@ -169,5 +247,29 @@ public class StickerActivityWithImages extends AppCompatActivity {
     private String convertStreamToString(InputStream is) {
         Scanner s = new Scanner(is).useDelimiter("\\A");
         return s.hasNext() ? s.next().replace(",", ",\n") : "";
+    }
+
+    /*
+    This is for testing purposes and can be deleted
+     */
+    public void onGetUser(View view) {
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+        database.child("users").child(username).runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                User user = mutableData.getValue(User.class);
+                if (user == null) {
+                    return Transaction.success(mutableData);
+                }
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
+                // Transaction completed
+                Log.d("onComplete", "postTransaction:onComplete:" + databaseError);
+            }
+        });
     }
 }
