@@ -5,13 +5,16 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,30 +35,43 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Scanner;
 
-/*
-I was afraid of losing your work so I just duplicated it. If you like what I did you can just delete
-the other activity *shrug*. I looked in the manifest, it should be fine to just delete it. If you do
-make sure you delete the layout and the entry in the manifest also :)
- */
 public class StickerActivityWithImages extends AppCompatActivity {
+
+    private ListView usersListView;
+    private ArrayList<User> users;
+    private ArrayAdapter<String> adapter;
+    private ArrayList<String> userNameList;
 
     private String SERVER_KEY;
     private String CLIENT_REGISTRATION_TOKEN;
 
-    // SECOND_DEVICE_TOKEN is the ID for my phone. I use the emulator as one device, my pixel 2 as another.
-    // Comment this out in onCreate() and hard code your own device ID in for testing purposes.
-    private String SECOND_DEVICE_TOKEN;
     private String username;
 
     private Button sendImageButton;
     private int selectedSticker = -1;
 
+    private User user;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sticker_with_images);
+
+        // Set up list view and list of users
+        usersListView = findViewById(R.id.usersListView);
+
+        users = new ArrayList<>();
+        userNameList = new ArrayList<>();
+        adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1,
+                userNameList);
+        usersListView.setAdapter(adapter);
 
         // These came over from MainActivity in the intent's extras
         SERVER_KEY = getIntent().getStringExtra("SERVER_KEY");
@@ -63,32 +79,31 @@ public class StickerActivityWithImages extends AppCompatActivity {
         username = getIntent().getStringExtra("username");
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
 
-        // Jon's Device Token
-        //SECOND_DEVICE_TOKEN = "e9RI84qydLE:APA91bFSy88Adx2kzWmsxyyEEaVc-PzkMyP_cAcbWomDSR6PVnkw1V5mfCLFKm9_aY-kAPKCv6j2ISDw7oE9pggrl-MQPs-aIuOnWuY__dDEuRj5n8K0lWLo5aas2bc8I0nrDiY0wkBX";
-
-        // Jake's Device Token
-        SECOND_DEVICE_TOKEN = "ey2SVu7mF8w:APA91bGnGZSRH0J-0Z_PpyE02bj0YNaD6MGVMaUDLhVlYBgaSJP-jWXXwBaOYBj2YcEzbPiV6hrwxd2E7VHOQw2aJslNQ7OpO8gCE8Nk3ocwaQIxeNLKT4IWGEVj8xTNqnjDDdGxNaQF";
-
         sendImageButton = findViewById(R.id.sendImageButton);
+
 
         database.child("users").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                user = dataSnapshot.getValue(User.class);
 
+                if (!user.username.equals(username)) {
+                    users.add(user);
+                    userNameList.add(user.username);
+                    adapter.notifyDataSetChanged();
+                }
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                User user = dataSnapshot.getValue(User.class);
+                user = dataSnapshot.getValue(User.class);
                 if (dataSnapshot.getKey().equalsIgnoreCase(username)) {
                     TextView userInfo = (TextView) findViewById(R.id.userInfoText);
                     userInfo.setText(
                             String.format(
                                     "username: %s\n" +
-                                            "client reg token: %s\n" +
                                             "sentCount: %s\n",
                                     user.username,
-                                    user.CLIENT_REGISTRATION_TOKEN,
                                     user.sentCount
                             )
                     );
@@ -97,28 +112,32 @@ public class StickerActivityWithImages extends AppCompatActivity {
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                // No implementation
 
             }
 
             @Override
             public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                // No implementation
 
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
+                // No implementation
 
             }
         });
 
-        // This button initiates a hard coded message, defined in sendMessage(), to be sent to the SECOND_DEVICE_TOKEN
         sendImageButton.setOnClickListener(v -> {
             if (selectedSticker != -1) {
                 increaseSentCount(database);
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        sendMessage(SECOND_DEVICE_TOKEN);
+                        for (User user : users) {
+                            sendMessage(user.CLIENT_REGISTRATION_TOKEN);
+                        }
                     }
                 }).start();
             } else {
@@ -127,9 +146,11 @@ public class StickerActivityWithImages extends AppCompatActivity {
                         .show();
             }
         });
+
     }
 
     private void increaseSentCount(DatabaseReference database) {
+        //TODO: getting  java.lang.NullPointerException: Can't pass null for argument 'pathString' in child(), for line below, sometimes
         database.child("users").child(username).runTransaction(new Transaction.Handler() {
             @NonNull
             @Override
@@ -225,16 +246,6 @@ public class StickerActivityWithImages extends AppCompatActivity {
             InputStream inputStream = conn.getInputStream();
             final String resp = convertStreamToString(inputStream);
 
-
-            //TODO: This is the debugging response given back to the sender. This probably doesn't need to
-            // be include in the final app
-            Handler h = new Handler(Looper.getMainLooper());
-            h.post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(StickerActivityWithImages.this, resp, Toast.LENGTH_LONG).show();
-                }
-            });
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
@@ -249,27 +260,4 @@ public class StickerActivityWithImages extends AppCompatActivity {
         return s.hasNext() ? s.next().replace(",", ",\n") : "";
     }
 
-    /*
-    This is for testing purposes and can be deleted
-     */
-    public void onGetUser(View view) {
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-        database.child("users").child(username).runTransaction(new Transaction.Handler() {
-            @NonNull
-            @Override
-            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
-                User user = mutableData.getValue(User.class);
-                if (user == null) {
-                    return Transaction.success(mutableData);
-                }
-                return Transaction.success(mutableData);
-            }
-
-            @Override
-            public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
-                // Transaction completed
-                Log.d("onComplete", "postTransaction:onComplete:" + databaseError);
-            }
-        });
-    }
 }

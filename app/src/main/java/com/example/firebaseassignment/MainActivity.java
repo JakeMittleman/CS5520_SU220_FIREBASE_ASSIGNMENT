@@ -2,6 +2,7 @@ package com.example.firebaseassignment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -55,41 +56,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        /*
-        These are triggers for when our data changes in the database. If the database notices
-        that info has changed in the 'users' table, it'll call one of these based on the condition.
-        We may not need it, but we may. I'm putting the skeleton here in-case you want to use it.
-        It doesn't do anything as it is so you can comment it out if you want.
-         */
-//        database.child("users").addChildEventListener(new ChildEventListener() {
-//            @Override
-//            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//
-//            }
-//
-//            @Override
-//            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//
-//            }
-//
-//            @Override
-//            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-//
-//            }
-//
-//            @Override
-//            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-
         // Set listener for enterButton
         enterButton.setOnClickListener(v -> {
+            username = usernameEditText.getText().toString();
             Intent stickerActivity = new Intent(getApplicationContext(), StickerActivityWithImages.class);
 
             MainActivity.this.createUser(
@@ -97,14 +66,21 @@ public class MainActivity extends AppCompatActivity {
                     CLIENT_REGISTRATION_TOKEN
                     );
 
-            stickerActivity.putExtra("username", usernameEditText.getText().toString());
+            stickerActivity.putExtra("username", username);
             stickerActivity.putExtra("CLIENT_REGISTRATION_TOKEN", CLIENT_REGISTRATION_TOKEN);
             stickerActivity.putExtra("SERVER_KEY", SERVER_KEY);
 
-            if (stickerActivity.resolveActivity(getPackageManager()) != null) {
+            if(username.equals("")) {
+                new AlertDialog.Builder(this)
+                        .setMessage("You must enter a username!")
+                        .show();
+            }
+            else {
                 startActivity(stickerActivity);
             }
+
         });
+
 
         // This code is relevant if we click a notification message from another device. See
         // documentation on extractDataFromNotification
@@ -118,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * This should add a user to the database. I haven't tested it. I'm so tired.
+     * This adds a user to the database
      * @param username the username of the user
      * @param clientRegToken the registration token of the user
      */
