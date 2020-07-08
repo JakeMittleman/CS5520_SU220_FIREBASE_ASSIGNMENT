@@ -5,18 +5,25 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * This class is used to extend the FirebaseMessagingService. It should be thought of as a "helper"
@@ -59,15 +66,17 @@ public class MessagingService extends FirebaseMessagingService {
         if (remoteMessage.getData() != null) {
             //TODO: Implement what we actually want to do with the data sent in the
             // remoteMessage. postToastMessage() should only be a placeholder.
-            postToastMessage(remoteMessage.getData().get("title") + ", " +
-                    "from remoteMessage's data paylaod, in MessagingService onMessageReceived()");
+//            postToastMessage(remoteMessage.getData().get("title") + ", " +
+//                    "from remoteMessage's data paylaod, in MessagingService onMessageReceived()");
+
+
         }
 
         // Check if message contains a notification payload, generate custom notification
         // Referenced from Dr. Feinberg Sample code, DemoMessagingService
         if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
-//            sendNotification(remoteMessage.getNotification().getBody());
+            sendNotification(remoteMessage.getNotification().getBody(), remoteMessage.getNotification().getTag());
         }
 
     }
@@ -100,43 +109,58 @@ public class MessagingService extends FirebaseMessagingService {
 //        }
 //    }
 
-    //    /**
-//     * Create and show a simple notification containing the received FCM message.
-//     * This method is used if you want to generate a custom notification message, vs. the
-//     * system's automoatically generated notification message
-//     * This method was referenced from: https://github.com/firebase/quickstart-android/blob/8a3169ae7f75e38665a62c520ccf8960609ab815/messaging/app/src/main/java/com/google/firebase/quickstart/fcm/java/MyFirebaseMessagingService.java#L58-L101
-//     * @param messageBody FCM message body received.
-//     */
-//    private void sendNotification(String messageBody) {
-//        Intent intent = new Intent(this, MainActivity.class);
-//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
-//                PendingIntent.FLAG_ONE_SHOT);
-//
-//        String channelId = "MY CUSTOM DEFAULT NOTIFICATION CHANNEL ID";
-//        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-//        NotificationCompat.Builder notificationBuilder =
-//                new NotificationCompat.Builder(this, channelId)
-//                        .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
-//                        .setContentTitle("MY CUSTOM TITLE")
-//                        .setContentText(messageBody + "THIS IS MY CUSTOM NOTIFICATION BODY")
-//                        .setAutoCancel(true)
-//                        .setSound(defaultSoundUri)
-//                        .setContentIntent(pendingIntent);
-//
-//        NotificationManager notificationManager =
-//                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//
-//        // Since android Oreo notification channel is needed.
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            NotificationChannel channel = new NotificationChannel(channelId,
-//                    "Channel human readable title",
-//                    NotificationManager.IMPORTANCE_DEFAULT);
-//            notificationManager.createNotificationChannel(channel);
-//        }
-//
-//        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
-//    }
-//
+        /**
+     * Create and show a simple notification containing the received FCM message.
+     * This method is used if you want to generate a custom notification message, vs. the
+     * system's automoatically generated notification message
+     * This method was referenced from: https://github.com/firebase/quickstart-android/blob/8a3169ae7f75e38665a62c520ccf8960609ab815/messaging/app/src/main/java/com/google/firebase/quickstart/fcm/java/MyFirebaseMessagingService.java#L58-L101
+     * @param messageBody FCM message body received.
+     */
+    private void sendNotification(String messageBody, String imageName) {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
+                PendingIntent.FLAG_ONE_SHOT);
+
+        // Sourced from https://mobikul.com/imagebanner-in-android-notification/
+        // and https://stackoverflow.com/questions/4955268/how-to-set-a-bitmap-from-resource
+        /*
+        This is what allows us to send an image in the notification. This is probably similar
+        to how we'll do it elsewhere.
+         */
+        Bitmap remote_picture = null;
+        NotificationCompat.BigPictureStyle notiStyle = new NotificationCompat.BigPictureStyle();
+
+        remote_picture = BitmapFactory.decodeResource(getResources(), Integer.parseInt(imageName));
+        notiStyle.bigPicture(remote_picture);
+
+        // ===================
+
+        String channelId = "MY CUSTOM DEFAULT NOTIFICATION CHANNEL ID";
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notificationBuilder =
+                new NotificationCompat.Builder(this, channelId)
+                        .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
+                        .setContentTitle("Your Friend Sent You A New Sticker!")
+                        .setContentText(messageBody + "THIS IS MY CUSTOM NOTIFICATION BODY")
+                        .setAutoCancel(true)
+                        .setSound(defaultSoundUri)
+                        .setContentIntent(pendingIntent)
+                        .setStyle(notiStyle);
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Since android Oreo notification channel is needed.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(channelId,
+                    "Channel human readable title",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+    }
+
 
 }
