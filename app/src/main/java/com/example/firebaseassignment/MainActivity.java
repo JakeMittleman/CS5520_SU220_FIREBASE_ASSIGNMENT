@@ -74,17 +74,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
-
-
-        // This code is relevant if we click a notification message from another device. See
-        // documentation on extractDataFromNotification
-        // Referenced from Dr. Feinberg Firebase sample code, DemoMessagingService/MainActivity
-        Intent i = getIntent();
-        Bundle extras = i.getExtras();
-        if (extras != null) {
-            extractDataFromNotification(extras);
-        }
-
     }
 
     /**
@@ -95,31 +84,5 @@ public class MainActivity extends AppCompatActivity {
     private void createUser(String username, String clientRegToken) {
         User user = new User(username, clientRegToken);
         database.child("users").child(username).setValue(user);
-    }
-
-    /**
-     * This method is called once the user clicks a notification. Upon receiving and selecting the
-     * notification, user is taken back to the app, and then this method is called.
-     * Copied from Dr. Feinberg Firebase sample code, DemoMessagingService/MainActivity
-     * @param extras
-     */
-    private void extractDataFromNotification(Bundle extras) {
-        String dataTitle = extras.getString("title", "Nothing");
-        String dataContent = extras.getString("content", "Nothing");
-        postToastMessage("Received : " + dataTitle + " " + dataContent);
-    }
-
-    /**
-     * Copied from Dr. Feinberg Firebase sample code, DemoMessagingService/MainActivity
-     * @param message
-     */
-    private void postToastMessage(final String message) {
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 }
