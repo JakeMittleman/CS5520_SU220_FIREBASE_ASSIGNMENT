@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -41,11 +42,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-/*
-I was afraid of losing your work so I just duplicated it. If you like what I did you can just delete
-the other activity *shrug*. I looked in the manifest, it should be fine to just delete it. If you do
-make sure you delete the layout and the entry in the manifest also :)
- */
 public class StickerActivityWithImages extends AppCompatActivity {
 
     private ListView usersListView;
@@ -77,15 +73,6 @@ public class StickerActivityWithImages extends AppCompatActivity {
                 userNameList);
         usersListView.setAdapter(adapter);
 
-
-//        usersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//
-//            }
-//        });
-
-
         // These came over from MainActivity in the intent's extras
         SERVER_KEY = getIntent().getStringExtra("SERVER_KEY");
         CLIENT_REGISTRATION_TOKEN = getIntent().getStringExtra("CLIENT_REGISTRATION_TOKEN");
@@ -100,7 +87,7 @@ public class StickerActivityWithImages extends AppCompatActivity {
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 user = dataSnapshot.getValue(User.class);
 
-                if (! user.username.equals(username)) {
+                if (!user.username.equals(username)) {
                     users.add(user);
                     userNameList.add(user.username);
                     adapter.notifyDataSetChanged();
@@ -125,16 +112,19 @@ public class StickerActivityWithImages extends AppCompatActivity {
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                // No implementation
 
             }
 
             @Override
             public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                // No implementation
 
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
+                // No implementation
 
             }
         });
@@ -256,16 +246,6 @@ public class StickerActivityWithImages extends AppCompatActivity {
             InputStream inputStream = conn.getInputStream();
             final String resp = convertStreamToString(inputStream);
 
-
-            //TODO: This is the debugging response given back to the sender. This probably doesn't need to
-            // be include in the final app
-//            Handler h = new Handler(Looper.getMainLooper());
-//            h.post(new Runnable() {
-//                @Override
-//                public void run() {
-//                    Toast.makeText(StickerActivityWithImages.this, resp, Toast.LENGTH_LONG).show();
-//                }
-//            });
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
@@ -280,27 +260,4 @@ public class StickerActivityWithImages extends AppCompatActivity {
         return s.hasNext() ? s.next().replace(",", ",\n") : "";
     }
 
-    /*
-    This is for testing purposes and can be deleted
-     */
-    public void onGetUser(View view) {
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-        database.child("users").child(username).runTransaction(new Transaction.Handler() {
-            @NonNull
-            @Override
-            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
-                User user = mutableData.getValue(User.class);
-                if (user == null) {
-                    return Transaction.success(mutableData);
-                }
-                return Transaction.success(mutableData);
-            }
-
-            @Override
-            public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
-                // Transaction completed
-                Log.d("onComplete", "postTransaction:onComplete:" + databaseError);
-            }
-        });
-    }
 }

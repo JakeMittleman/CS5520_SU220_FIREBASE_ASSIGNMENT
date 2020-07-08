@@ -34,15 +34,9 @@ public class MessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MessagingService";
 
-
     @Override
     public void onNewToken(String token) {
         Log.d(TAG, "Refreshed token: " + token);
-
-        // If you want to send messages to this application instance or
-        // manage this apps subscriptions on the server side, send the
-        // Instance ID token to your app server.
-//        sendRegistrationToServer(token);
     }
 
     /**
@@ -64,13 +58,6 @@ public class MessagingService extends FirebaseMessagingService {
         // Check if message contains a data payload. THIS WORKS IN THE FOREGROUND
         // Referenced from Dr. Feinberg Sample code, DemoMessagingService
         if (remoteMessage.getData() != null) {
-
-            //TODO: Implement what we actually want to do with the data sent in the
-            // remoteMessage. postToastMessage() should only be a placeholder.
-//            postToastMessage(remoteMessage.getData().get("title") + ", " +
-//                    "from remoteMessage's data paylaod, in MessagingService onMessageReceived()");
-
-
         }
 
         // Check if message contains a notification payload, generate custom notification
@@ -79,41 +66,20 @@ public class MessagingService extends FirebaseMessagingService {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
             sendNotification(remoteMessage.getNotification().getBody(), remoteMessage.getNotification().getTag());
         }
-
     }
 
     /**
-     * This message is copied from Dr. Feinberg example code, Class DemoMessagingService.
-     */
-    public void postToastMessage(final String message) {
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-
-//    // Copied from Dr. Feinberg sample code
-//    private void  extractPayloadDataForegroundCase(RemoteMessage remoteMessage){
-//        if(remoteMessage.getData() != null){
-//            postToastMessage(remoteMessage.getData().get("title"));
-//        }
-//    }
-
-
-
-        /**
      * Create and show a simple notification containing the received FCM message.
      * This method is used if you want to generate a custom notification message, vs. the
      * system's automatically generated notification message
      * This method was referenced from: https://github.com/firebase/quickstart-android/blob/8a3169ae7f75e38665a62c520ccf8960609ab815/messaging/app/src/main/java/com/google/firebase/quickstart/fcm/java/MyFirebaseMessagingService.java#L58-L101
+     *
      * @param messageBody FCM message body received.
      */
     private void sendNotification(String messageBody, String imageName) {
-        Intent intent = new Intent(this, StickerActivityWithImages.class);
+        Intent intent = new Intent(this, ReceivedActivity.class);
+        intent.putExtra("sticker", imageName);
+
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);

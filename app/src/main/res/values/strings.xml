@@ -3,4 +3,6 @@
     <string name="image_of_goggles">image_of_goggles</string>
     <string name="send_image">Send Image</string>
     <string name="image_of_facemask">image_of_facemask</string>
+    <string name="enter_username">Enter Username</string>
+    <string name="enter_app">Enter App</string>
 </resources>

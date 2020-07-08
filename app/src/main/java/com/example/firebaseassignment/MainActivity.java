@@ -56,39 +56,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        /*
-        These are triggers for when our data changes in the database. If the database notices
-        that info has changed in the 'users' table, it'll call one of these based on the condition.
-        We may not need it, but we may. I'm putting the skeleton here in-case you want to use it.
-        It doesn't do anything as it is so you can comment it out if you want.
-         */
-//        database.child("users").addChildEventListener(new ChildEventListener() {
-//            @Override
-//            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//
-//            }
-//
-//            @Override
-//            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//
-//            }
-//
-//            @Override
-//            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-//
-//            }
-//
-//            @Override
-//            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-
         // Set listener for enterButton
         enterButton.setOnClickListener(v -> {
             username = usernameEditText.getText().toString();
