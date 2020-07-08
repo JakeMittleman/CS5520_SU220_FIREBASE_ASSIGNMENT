@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".StickerActivityWithImages">
+
+    <ImageView
+        android:id="@+id/goggleImage"
+        android:layout_width="159dp"
+        android:layout_height="175dp"
+        android:contentDescription="@string/image_of_goggles"
+        android:onClick="onImageClick"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/faceMaskImage"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.16000003"
+        app:srcCompat="@drawable/icon_001_goggles" />
+
+    <ImageView
+        android:id="@+id/faceMaskImage"
+        android:layout_width="171dp"
+        android:layout_height="172dp"
+        android:contentDescription="@string/image_of_facemask"
+        android:onClick="onImageClick"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/goggleImage"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.16000003"
+        app:srcCompat="@drawable/icon_002_face_mask" />
+
+    <Button
+        android:id="@+id/sendImageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/send_image"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.84000003" />
+
+<!--    These below are for testing purposes and can be deleted.-->
+
+    <Button
+        android:id="@+id/getUserButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Get User"
+        android:onClick="onGetUser"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sendImageButton" />
+
+    <TextView
+        android:id="@+id/userInfoText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.61" />
+</androidx.constraintlayout.widget.ConstraintLayout>

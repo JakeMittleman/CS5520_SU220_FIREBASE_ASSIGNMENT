@@ -150,7 +150,6 @@ public class StickerActivityWithImages extends AppCompatActivity {
     }
 
     private void increaseSentCount(DatabaseReference database) {
-        //TODO: getting  java.lang.NullPointerException: Can't pass null for argument 'pathString' in child(), for line below, sometimes
         database.child("users").child(username).runTransaction(new Transaction.Handler() {
             @NonNull
             @Override
@@ -202,8 +201,9 @@ public class StickerActivityWithImages extends AppCompatActivity {
         JSONObject jdata = new JSONObject();
 
         try {
-            jNotification.put("title", "Message Title");
-            jNotification.put("body", "Message body ");
+            jNotification.put("title", "You Got a New Sticker!");
+            jNotification.put("body", "Your friend " + username + " just sent" +
+                    " you a new sticker!");
             jNotification.put("sound", "default");
             jNotification.put("badge", "1");
             jNotification.put("tag", "" + selectedSticker);

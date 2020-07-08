@@ -47,12 +47,6 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess(InstanceIdResult instanceIdResult) {
                 CLIENT_REGISTRATION_TOKEN = instanceIdResult.getToken();
                 database = FirebaseDatabase.getInstance().getReference();
-
-                //TODO: I'm not sure where this logic belongs. But here might be an option.
-                // - After getting the token, we might want to go to the database and get the
-                // username associated with the token (if there is one). If we allow someone to enter the same
-                // username that is associated with the token, it will wipe the user's data
-                // and replace it as a new user (this was a piazza post).
             }
         });
 
@@ -110,9 +104,6 @@ public class MainActivity extends AppCompatActivity {
      * @param extras
      */
     private void extractDataFromNotification(Bundle extras) {
-        //TODO: how do we launch a specific activity? right now, clicking the notification
-        // brings us to the MainActivity, and we get the data there
-
         String dataTitle = extras.getString("title", "Nothing");
         String dataContent = extras.getString("content", "Nothing");
         postToastMessage("Received : " + dataTitle + " " + dataContent);

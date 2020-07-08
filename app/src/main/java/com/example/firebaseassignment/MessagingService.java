@@ -86,10 +86,6 @@ public class MessagingService extends FirebaseMessagingService {
 
         // Sourced from https://mobikul.com/imagebanner-in-android-notification/
         // and https://stackoverflow.com/questions/4955268/how-to-set-a-bitmap-from-resource
-        /*
-        This is what allows us to send an image in the notification. This is probably similar
-        to how we'll do it elsewhere.
-         */
         Bitmap remote_picture = null;
         NotificationCompat.BigPictureStyle notiStyle = new NotificationCompat.BigPictureStyle();
 
