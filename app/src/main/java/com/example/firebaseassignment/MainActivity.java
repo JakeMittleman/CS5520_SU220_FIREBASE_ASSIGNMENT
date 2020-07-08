@@ -2,6 +2,7 @@ package com.example.firebaseassignment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Set listener for enterButton
         enterButton.setOnClickListener(v -> {
+            username = usernameEditText.getText().toString();
             Intent stickerActivity = new Intent(getApplicationContext(), StickerActivityWithImages.class);
 
             MainActivity.this.createUser(
@@ -97,14 +99,21 @@ public class MainActivity extends AppCompatActivity {
                     CLIENT_REGISTRATION_TOKEN
                     );
 
-            stickerActivity.putExtra("username", usernameEditText.getText().toString());
+            stickerActivity.putExtra("username", username);
             stickerActivity.putExtra("CLIENT_REGISTRATION_TOKEN", CLIENT_REGISTRATION_TOKEN);
             stickerActivity.putExtra("SERVER_KEY", SERVER_KEY);
 
-            if (stickerActivity.resolveActivity(getPackageManager()) != null) {
+            if(username.equals("")) {
+                new AlertDialog.Builder(this)
+                        .setMessage("You must enter a username!")
+                        .show();
+            }
+            else {
                 startActivity(stickerActivity);
             }
+
         });
+
 
         // This code is relevant if we click a notification message from another device. See
         // documentation on extractDataFromNotification
@@ -118,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * This should add a user to the database. I haven't tested it. I'm so tired.
+     * This adds a user to the database
      * @param username the username of the user
      * @param clientRegToken the registration token of the user
      */

@@ -64,6 +64,7 @@ public class MessagingService extends FirebaseMessagingService {
         // Check if message contains a data payload. THIS WORKS IN THE FOREGROUND
         // Referenced from Dr. Feinberg Sample code, DemoMessagingService
         if (remoteMessage.getData() != null) {
+
             //TODO: Implement what we actually want to do with the data sent in the
             // remoteMessage. postToastMessage() should only be a placeholder.
 //            postToastMessage(remoteMessage.getData().get("title") + ", " +
@@ -95,13 +96,6 @@ public class MessagingService extends FirebaseMessagingService {
     }
 
 
-
-    //TODO: the commented out code below implements a custom notification. Not sure if we
-    // want to include this or not.
-    // If you want to try it, uncomment code below, and above in this file, uncomment
-    // sendNotification(remoteMessage.getNotification().getBody()) in onMessageReceived()
-
-
 //    // Copied from Dr. Feinberg sample code
 //    private void  extractPayloadDataForegroundCase(RemoteMessage remoteMessage){
 //        if(remoteMessage.getData() != null){
@@ -109,15 +103,17 @@ public class MessagingService extends FirebaseMessagingService {
 //        }
 //    }
 
+
+
         /**
      * Create and show a simple notification containing the received FCM message.
      * This method is used if you want to generate a custom notification message, vs. the
-     * system's automoatically generated notification message
+     * system's automatically generated notification message
      * This method was referenced from: https://github.com/firebase/quickstart-android/blob/8a3169ae7f75e38665a62c520ccf8960609ab815/messaging/app/src/main/java/com/google/firebase/quickstart/fcm/java/MyFirebaseMessagingService.java#L58-L101
      * @param messageBody FCM message body received.
      */
     private void sendNotification(String messageBody, String imageName) {
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, StickerActivityWithImages.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
@@ -142,7 +138,7 @@ public class MessagingService extends FirebaseMessagingService {
                 new NotificationCompat.Builder(this, channelId)
                         .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
                         .setContentTitle("Your Friend Sent You A New Sticker!")
-                        .setContentText(messageBody + "THIS IS MY CUSTOM NOTIFICATION BODY")
+                        .setContentText(messageBody)
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)
                         .setContentIntent(pendingIntent)
